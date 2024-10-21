@@ -1,4 +1,15 @@
 <script>
+  let isDarkMode;
+  function ToggleMode() {
+    isDarkMode = !isDarkMode;
+
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }
+
   let file = null;
   let output = "";
   let errorLines = [];
@@ -16,7 +27,7 @@
     if (file) {
       const fileName = file.name;
       const fileExtension = fileName.slice(
-        ((fileName.lastIndexOf(".") - 1) >>> 0) + 2
+        ((fileName.lastIndexOf(".") - 1) >>> 0) + 2,
       );
 
       if (fileExtension.toLowerCase() === "java") {
@@ -30,13 +41,15 @@
           output = result.tokens
             .map((token) => `Token: ${token[0]} \t\t Lexeme: ${token[1]}`)
             .join("\n");
-          errorLines = [...result.errorLines]; // Reassign to trigger reactivity
+          errorLines = [...result.errorLines]; // Trigger reactivity by assigning a new array
         };
 
         reader.readAsText(file);
       } else {
         alert("File must have a .java extension");
       }
+    } else {
+      alert("No file selected. Please upload a .java file.");
     }
   }
 
@@ -58,37 +71,26 @@
       "class",
       "static",
       "void",
-      "Strings",
+      "String",
       "args",
       "System",
-      "in",
-      "println",
       "out",
+      "println",
       "int",
-      "nextInt",
       "float",
-      "nextFloat",
       "boolean",
+      "switch",
       "case",
       "break",
-      "switch",
-      "class",
-      "const",
       "default",
       "do",
       "for",
       "while",
-      "double",
       "if",
       "else",
-      "extends",
-      "choice",
-      "scanner",
-      "close",
     ];
 
-    // Regular expressions for different token types
-    const assignmentOperator = ["="];
+    const assignmentOperators = ["="];
     const unaryOperators = ["++", "--", "!"];
     const arithmeticOperators = ["+", "-", "*", "/", "%"];
     const relationalOperators = ["<", "<=", ">", ">=", "==", "!="];
@@ -107,11 +109,12 @@
       "'",
       '"',
     ];
-    const identifier = /^[a-zA-Z_$][a-zA-Z0-9_$@]*$/;
-    const integer = /^-?\d+$/;
-    const realNumber = /^-?\d+(\.\d+)?$/;
-    const characterLiteral = /^\'[^\']\'$/;
-    const stringLiteral = /^\"[^\"]*\"$/; // Match string enclosed in double quotes
+
+    const identifierPattern = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
+    const integerPattern = /^-?\d+$/;
+    const realNumberPattern = /^-?\d+(\.\d+)?$/;
+    const characterLiteralPattern = /^\'[^\']\'$/;
+    const stringLiteralPattern = /^\"[^\"]*\"$/; // Match string enclosed in double quotes
 
     const tokens = [];
     const errorLines = [];
@@ -124,31 +127,28 @@
       words.forEach((word) => {
         if (reservedWords.includes(word)) {
           tokens.push(["Reserved Word", word]);
-        } else if (integer.test(word)) {
-          tokens.push(["Integer", word]);
-        } else if (realNumber.test(word)) {
-          tokens.push(["Real Number", word]);
-        } else if (characterLiteral.test(word)) {
-          tokens.push(["Character Literal", word]);
-        } else if (stringLiteral.test(word)) {
-          tokens.push(["String Literal", word]);
-        } else if (identifier.test(word)) {
-          tokens.push(["Identifier", word]);
-        } else if (assignmentOperator.test(word)) {
+        } else if (assignmentOperators.includes(word)) {
           tokens.push(["Assignment Operator", word]);
-        } else if (unaryOperators.test(word)) {
-          tokens.push(["Unary Operator", word]);
-        } else if (arithmeticOperators.test(word)) {
+        } else if (arithmeticOperators.includes(word)) {
           tokens.push(["Arithmetic Operator", word]);
-        } else if (relationalOperators.test(word)) {
+        } else if (relationalOperators.includes(word)) {
           tokens.push(["Relational Operator", word]);
-        } else if (symbols.test(word)) {
-          tokens.push(["Symbol", word]);
-        } else if (conditionalOperators.test(word)) {
+        } else if (conditionalOperators.includes(word)) {
           tokens.push(["Conditional Operator", word]);
+        } else if (symbols.includes(word)) {
+          tokens.push(["Symbol", word]);
+        } else if (integerPattern.test(word)) {
+          tokens.push(["Integer", word]);
+        } else if (realNumberPattern.test(word)) {
+          tokens.push(["Real Number", word]);
+        } else if (stringLiteralPattern.test(word)) {
+          tokens.push(["String Literal", word]);
+        } else if (characterLiteralPattern.test(word)) {
+          tokens.push(["Character Literal", word]);
+        } else if (identifierPattern.test(word)) {
+          tokens.push(["Identifier", word]);
         } else {
-          // Handle unknown symbols or errors
-          errorLines.push(index + 1); // Add 1 to make line numbers 1-based
+          errorLines.push(index + 1); // Capture the line number of the error
         }
       });
     });
@@ -157,6 +157,11 @@
   }
 </script>
 
+<nav>
+  <button on:click={ToggleMode}
+    >{isDarkMode ? "Light-Mode" : "Dark-Mode"}</button
+  >
+</nav>
 <main>
   <div id="container">
     <div class="upload-section">
@@ -170,33 +175,29 @@
 
       <button class="scan-button" on:click={processFile}>Scan</button>
     </div>
-
     <div id="output">
       <pre>{output}</pre>
     </div>
-
-    {#if errorLines.length > 0}
-      <div id="errors">
-        <p><strong>Errors:</strong></p>
-        <ul>
-          {#each errorLines as line}
-            <li>Error in line {line}</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
+    <div class="error-line">
+      {#if errorLines.length > 0}
+        {#each errorLines as lineNumber}
+          <div class="error-line">Error in line {lineNumber}</div>
+        {/each}
+      {/if}
+    </div>
   </div>
 </main>
 
 <style>
-  main {
-    background-color: #f0f0f0;
+  :global(body.dark-mode) {
+    background-color: black;
+    color: white;
+  }
+  :global(main.dark-mode) {
     align-items: center;
     font-family: Arial, sans-serif;
   }
-
   #container {
-    background-color: white;
     padding: 20px;
     text-align: center;
   }
@@ -224,7 +225,7 @@
 
   #output {
     width: 100%;
-    height: 200px;
+    height: 400px;
     margin-top: 10px;
     overflow-y: auto;
     padding: 10px;
@@ -234,7 +235,7 @@
     white-space: pre-wrap;
   }
 
-  #errors {
+  .error-line {
     color: red;
   }
 </style>
