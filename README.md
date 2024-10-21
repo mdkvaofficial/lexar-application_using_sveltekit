@@ -26,7 +26,7 @@ To run the Lexar application locally, follow these steps:
 1. **Clone the repository**  
    Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/mdkvaofficial/lexar-application_using_vanilla_javascript.git
+   git clone https://github.com/mdkvaofficial/lexar-application_using_sveltekit.git
    ```
 
 2. **Install dependencies**  
