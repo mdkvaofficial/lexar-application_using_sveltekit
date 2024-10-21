@@ -55,6 +55,7 @@ To run the Lexar application locally, follow these steps:
 
 - **HTML/CSS** - Used for the structure and styling of the interface.
 - **JavaScript (ES6+)**
+- **Sveltekit**
 
 
 ## Future Improvements
