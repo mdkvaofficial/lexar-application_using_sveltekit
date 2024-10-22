@@ -26,7 +26,7 @@ To run the Lexar application locally, follow these steps:
 1. **Clone the repository**  
    Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/mdkvaofficial/lexar-application_using_sveltekit.git
+   git clone https://github.com/mdkvaofficial/lexar-application.git
    ```
 
 2. **Install dependencies**  
@@ -65,7 +65,7 @@ To run the Lexar application locally, follow these steps:
 - Enhance the UI/UX with more visual feedback during file analysis.
 - Add support for batch processing of multiple `.java` files at once.
 
-## Contributing
+## Contributions
 
 Contributions are welcome! If you would like to improve the application or add new features, follow these steps:
 
@@ -75,6 +75,3 @@ Contributions are welcome! If you would like to improve the application or add n
 4. Push to the branch (`git push origin feature/new-feature`).
 5. Open a pull request.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
